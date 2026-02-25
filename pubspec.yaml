@@ -1,0 +1,30 @@
+name: resqmission
+description: ResQMission - Emergency Response Mobile App
+
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  http: ^1.2.0
+  flutter_svg: ^2.0.10+1
+  shared_preferences: ^2.2.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icons/
+    - assets/logo.png
+    - assets/onboarding_1.png
+    - assets/onboarding_2.png
+    - assets/onboarding_3.png
