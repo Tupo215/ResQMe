@@ -7,9 +7,11 @@ import 'login_screen.dart';
 import 'sos_active_screen.dart';
 import 'report_who_screen.dart';
 import 'ai_guidance_screen.dart';
+import 'voice_ai_screen.dart';
 import 'settings_screen.dart';
 import 'emergency_contact_screen.dart';
 import 'medical_profile_screen.dart';
+import 'sos_flow_screens.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -20,6 +22,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen>
     with TickerProviderStateMixin {
   int _selectedTab = 0;
+  String _userName = '';
 
   // SOS hold state
   bool   _isHolding    = false;
@@ -39,6 +42,16 @@ class _DashboardScreenState extends State<DashboardScreen>
     _pulseAnim = Tween<double>(begin: 0.92, end: 1.0).animate(
       CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
     );
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final name = await ResQApiService.getUserName();
+    if (mounted && name != null && name.isNotEmpty) {
+      // Use first name only
+      final firstName = name.trim().split(' ').first;
+      setState(() => _userName = firstName);
+    }
   }
 
   @override
@@ -46,6 +59,13 @@ class _DashboardScreenState extends State<DashboardScreen>
     _progressTimer?.cancel();
     _pulseCtrl.dispose();
     super.dispose();
+  }
+
+  String get _greeting {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
   }
 
   void _onSOSDown() {
@@ -87,7 +107,10 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final ringScale = _isHolding ? _pulseAnim.value : 1.0;
+    // SOS circle sized relative to screen, capped nicely
+    final sosSize = (screenWidth * 0.72).clamp(220.0, 310.0);
 
     return Scaffold(
       backgroundColor: const Color(0xFFEFEFF1),
@@ -109,34 +132,41 @@ class _DashboardScreenState extends State<DashboardScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
 
-              // ── Top bar ─────────────────────────────────────────
+              // ── Top bar ──────────────────────────────────────────
               Padding(
-                padding: const EdgeInsets.only(
-                    top: 16, left: 24, right: 24, bottom: 8),
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
                 child: Row(
                   children: [
-                    // Avatar
+                    // Avatar circle with initials fallback
                     Container(
                       width: 56, height: 56,
-                      decoration: ShapeDecoration(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(64)),
-                        image: const DecorationImage(
-                          image: NetworkImage('https://placehold.co/56x56'),
-                          fit: BoxFit.cover,
+                      decoration: const ShapeDecoration(
+                        color: Color(0xFF000080),
+                        shape: CircleBorder(),
+                      ),
+                      child: Center(
+                        child: Text(
+                          _userName.isNotEmpty
+                              ? _userName[0].toUpperCase()
+                              : '?',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 22,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w700),
                         ),
                       ),
                     ),
                     const SizedBox(width: 16),
-
-                    // Greeting
                     Expanded(child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Good Evening, Ifeoluwa',
-                            style: TextStyle(color: Color(0xFF232323),
-                                fontSize: 16, fontFamily: 'Inter',
-                                fontWeight: FontWeight.w400, height: 1.40)),
+                        Text(
+                          '$_greeting, ${_userName.isNotEmpty ? _userName : 'there'}',
+                          style: const TextStyle(
+                              color: Color(0xFF232323), fontSize: 16,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w400, height: 1.40),
+                        ),
                         Text('Stay Safe',
                             style: TextStyle(
                                 color: Colors.black.withValues(alpha: 0.20),
@@ -144,15 +174,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 fontWeight: FontWeight.w600, height: 1.40)),
                       ],
                     )),
-
-                    // Notification / settings icon
+                    // Notification bell
                     Container(
                       width: 48, height: 48,
-                      decoration: ShapeDecoration(
-                        color: const Color(0xFF333399),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(999)),
-                        shadows: const [
+                      decoration: const ShapeDecoration(
+                        color: Color(0xFF333399),
+                        shape: CircleBorder(),
+                        shadows: [
                           BoxShadow(color: Color(0x19000000),
                               blurRadius: 4, offset: Offset(0, 2),
                               spreadRadius: -2),
@@ -170,153 +198,152 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
               ),
 
-              // ── SOS Button area ─────────────────────────────────
+              // ── SOS Button ───────────────────────────────────────
               Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 47, vertical: 9),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 16),
-                    // SOS rings + button
-                    Center(
-                      child: GestureDetector(
-                        onTapDown: (_) => _onSOSDown(),
-                        onTapUp:   (_) => _onSOSUp(),
-                        onTapCancel: _onSOSUp,
-                        child: SizedBox(
-                          width: 322, height: 322,
-                          child: Stack(alignment: Alignment.center, children: [
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: GestureDetector(
+                    onTapDown: (_) => _onSOSDown(),
+                    onTapUp:   (_) => _onSOSUp(),
+                    onTapCancel: _onSOSUp,
+                    child: SizedBox(
+                      width: sosSize,
+                      height: sosSize,
+                      child: Stack(alignment: Alignment.center, children: [
 
-                            // Outer ring (always visible from design)
-                            Container(
-                              width: 322, height: 322,
+                        // Outer ring — ONLY shown while holding
+                        if (_isHolding)
+                          Transform.scale(scale: ringScale,
+                            child: Container(
+                              width: sosSize, height: sosSize,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: _isHolding
-                                      ? const Color(0xFFFAE5E5)
-                                      : const Color(0xFFFAE5E5)
-                                          .withValues(alpha: 0.5),
-                                ),
+                                    color: const Color(0xFFFAE5E5), width: 1),
                               ),
                             ),
+                          ),
 
-                            // Mid ring
-                            Container(
-                              width: 295, height: 295,
+                        // Mid ring — ONLY shown while holding
+                        if (_isHolding)
+                          Transform.scale(scale: ringScale,
+                            child: Container(
+                              width: sosSize * 0.918,
+                              height: sosSize * 0.918,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  width: 2,
-                                  color: _isHolding
-                                      ? const Color(0xFFF6CCCC)
-                                      : const Color(0xFFF6CCCC)
-                                          .withValues(alpha: 0.5),
-                                ),
+                                    color: const Color(0xFFF6CCCC), width: 2),
                               ),
                             ),
+                          ),
 
-                            // Progress arc while holding
-                            if (_isHolding)
-                              SizedBox(
-                                width: 260, height: 260,
-                                child: CircularProgressIndicator(
-                                  value: _holdProgress,
-                                  strokeWidth: 4,
-                                  backgroundColor: Colors.transparent,
-                                  valueColor: const AlwaysStoppedAnimation<Color>(
-                                      Color(0xFFF6CCCC)),
-                                ),
-                              ),
-
-                            // Core red SOS circle
-                            Transform.scale(
-                              scale: _isHolding ? ringScale : 1.0,
-                              child: Container(
-                                width: 230, height: 230,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFD00000),
-                                  shape: BoxShape.circle,
-                                  boxShadow: [BoxShadow(
-                                    color: Color(0x50D00000),
-                                    blurRadius: 24, spreadRadius: 2,
-                                    offset: Offset(0, 8),
-                                  )],
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    ResQIcon(ResQIcons.sos, size: 68,
-                                        color: Colors.white),
-                                    const SizedBox(height: 4),
-                                    Text('SOS',
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                            color: Color(0xFFEFEFF1),
-                                            fontSize: 64, fontFamily: 'Inter',
-                                            fontWeight: FontWeight.w700,
-                                            height: 1.40)),
-                                    if (_isHolding) ...[
-                                      const SizedBox(height: 2),
-                                      Text(
-                                          '${(3 - (_holdProgress * 3)).ceil()}s',
-                                          style: const TextStyle(
-                                              color: Color(0xCCEFEFF1),
-                                              fontSize: 14, fontFamily: 'Inter',
-                                              fontWeight: FontWeight.w500)),
-                                    ],
-                                  ],
-                                ),
-                              ),
+                        // Progress arc — ONLY while holding
+                        if (_isHolding)
+                          SizedBox(
+                            width: sosSize * 0.83,
+                            height: sosSize * 0.83,
+                            child: CircularProgressIndicator(
+                              value: _holdProgress,
+                              strokeWidth: 4,
+                              backgroundColor: Colors.transparent,
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                  Color(0xFFF6CCCC)),
                             ),
-                          ]),
+                          ),
+
+                        // Core red SOS circle
+                        Transform.scale(
+                          scale: _isHolding ? ringScale : 1.0,
+                          child: Container(
+                            width: sosSize * 0.715,
+                            height: sosSize * 0.715,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFD00000),
+                              shape: BoxShape.circle,
+                              boxShadow: [BoxShadow(
+                                color: Color(0x50D00000),
+                                blurRadius: 24, spreadRadius: 2,
+                                offset: Offset(0, 8),
+                              )],
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // Emergency icon (replaces top "SOS" text)
+                                ResQIcon(ResQIcons.emergency,
+                                    size: 56, color: Colors.white),
+                                const SizedBox(height: 4),
+                                const Text('SOS',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        color: Color(0xFFEFEFF1),
+                                        fontSize: 52, fontFamily: 'Inter',
+                                        fontWeight: FontWeight.w700,
+                                        height: 1.2)),
+                                if (_isHolding) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                      '${(3 - (_holdProgress * 3)).ceil()}s',
+                                      style: const TextStyle(
+                                          color: Color(0xCCEFEFF1),
+                                          fontSize: 14, fontFamily: 'Inter',
+                                          fontWeight: FontWeight.w500)),
+                                ],
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                      ]),
                     ),
-
-                    const SizedBox(height: 48),
-
-                    // Hold / release hints
-                    Text(
-                      _isHolding
-                          ? 'Keep holding to send SOS...'
-                          : 'Hold for 3 seconds to request help',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: _isHolding
-                            ? const Color(0xFFD00000)
-                            : const Color(0xFF7B7B7B),
-                        fontSize: 16, fontFamily: 'Inter',
-                        fontWeight: _isHolding
-                            ? FontWeight.w600 : FontWeight.w400,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _isHolding ? '' : 'Release to cancel',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Color(0xFFA7A7A7),
-                          fontSize: 14, fontFamily: 'Inter',
-                          fontWeight: FontWeight.w400, height: 1.40),
-                    ),
-                  ],
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 24),
-
-              // ── AI / Not Sure card ──────────────────────────────
+              // Hold hint text
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 23),
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Column(children: [
+                  Center(child: Text(
+                    _isHolding
+                        ? 'Keep holding to send SOS...'
+                        : 'Hold for 3 seconds to request help',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: _isHolding
+                          ? const Color(0xFFD00000)
+                          : const Color(0xFF7B7B7B),
+                      fontSize: 16, fontFamily: 'Inter',
+                      fontWeight: _isHolding
+                          ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                  )),
+                  const SizedBox(height: 4),
+                  Center(child: Text(
+                    'Release to cancel',
+                    style: TextStyle(
+                        color: _isHolding
+                            ? const Color(0xFFA7A7A7)
+                            : Colors.transparent,
+                        fontSize: 14, fontFamily: 'Inter',
+                        fontWeight: FontWeight.w400, height: 1.40),
+                  )),
+                ]),
+              ),
+
+              const SizedBox(height: 16),
+
+              // ── AI / Not Sure card ────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
                   decoration: ShapeDecoration(
                     color: Colors.white,
                     shape: RoundedRectangleBorder(
-                      side: const BorderSide(
-                          width: 2, color: Color(0xFFF3F3F5)),
-                      borderRadius: BorderRadius.circular(24),
+                      side: const BorderSide(width: 2, color: Color(0xFFF3F3F5)),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                   child: Column(
@@ -334,70 +361,66 @@ class _DashboardScreenState extends State<DashboardScreen>
                             ),
                             child: Center(
                               child: ResQIcon(ResQIcons.bot,
-                                  size: 24, color: AppColors.navy),
+                                  size: 22, color: AppColors.navy),
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(child: Column(
+                          const SizedBox(width: 12),
+                          const Expanded(child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4),
-                                child: Text('Not sure? Chat with AI',
-                                    style: TextStyle(
-                                        color: Color(0xFF000080),
-                                        fontSize: 16, fontFamily: 'Inter',
-                                        fontWeight: FontWeight.w600,
-                                        height: 1.40)),
-                              ),
-                              const Text(
+                              Text('Not sure? Chat with AI',
+                                  style: TextStyle(
+                                      color: Color(0xFF000080), fontSize: 15,
+                                      fontFamily: 'Inter',
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.40)),
+                              SizedBox(height: 2),
+                              Text(
                                   "Describe what happened. I'll assess and help you.",
                                   style: TextStyle(
-                                      color: Color(0xFF6666B3),
-                                      fontSize: 14, fontFamily: 'Inter',
+                                      color: Color(0xFF6666B3), fontSize: 13,
+                                      fontFamily: 'Inter',
                                       fontWeight: FontWeight.w400,
                                       height: 1.40)),
                             ],
                           )),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
                       Row(children: [
                         Expanded(child: GestureDetector(
                           onTap: () => Navigator.push(context,
                               MaterialPageRoute(
                                   builder: (_) => const AiGuidanceScreen())),
                           child: Container(
-                            height: 50,
+                            height: 46,
                             decoration: ShapeDecoration(
                               shape: RoundedRectangleBorder(
-                                side: const BorderSide(
-                                    color: Color(0xFF000080)),
+                                side: const BorderSide(color: Color(0xFF000080)),
                                 borderRadius: BorderRadius.circular(40),
                               ),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                ResQIcon(ResQIcons.chat, size: 24,
-                                    color: Colors.black.withValues(alpha: 0.20)),
+                                ResQIcon(ResQIcons.chat, size: 20,
+                                    color: Colors.black.withValues(alpha: 0.25)),
                                 const SizedBox(width: 8),
                                 Text('Start Chat',
                                     style: TextStyle(
-                                        color: Colors.black
-                                            .withValues(alpha: 0.20),
-                                        fontSize: 16, fontFamily: 'Inter',
-                                        fontWeight: FontWeight.w500,
-                                        height: 1.40)),
+                                        color: Colors.black.withValues(alpha: 0.25),
+                                        fontSize: 15, fontFamily: 'Inter',
+                                        fontWeight: FontWeight.w500)),
                               ],
                             ),
                           ),
                         )),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 12),
                         Expanded(child: GestureDetector(
-                          onTap: () {},
+                          onTap: () => Navigator.push(context,
+                              MaterialPageRoute(builder: (_) => const VoiceAiScreen())),
                           child: Container(
-                            height: 50,
+                            height: 46,
                             decoration: ShapeDecoration(
                               color: const Color(0xFF000080),
                               shape: RoundedRectangleBorder(
@@ -406,15 +429,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                ResQIcon(ResQIcons.microphone, size: 24,
+                                ResQIcon(ResQIcons.microphone, size: 20,
                                     color: const Color(0xFFEFEFF1)),
                                 const SizedBox(width: 8),
                                 const Text('Voice Help',
                                     style: TextStyle(
-                                        color: Color(0xFFEFEFF1),
-                                        fontSize: 16, fontFamily: 'Inter',
-                                        fontWeight: FontWeight.w500,
-                                        height: 1.40)),
+                                        color: Color(0xFFEFEFF1), fontSize: 15,
+                                        fontFamily: 'Inter',
+                                        fontWeight: FontWeight.w500)),
                               ],
                             ),
                           ),
@@ -425,101 +447,98 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // ── Quick Actions ───────────────────────────────────
+              // ── Quick Actions ─────────────────────────────────────
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 23),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Quick Actions',
-                        style: TextStyle(color: Color(0xFF000080),
-                            fontSize: 16, fontFamily: 'Inter',
+                        style: TextStyle(
+                            color: Color(0xFF000080), fontSize: 16,
+                            fontFamily: 'Inter',
                             fontWeight: FontWeight.w600, height: 1.40)),
-                    const SizedBox(height: 16),
-
-                    // 2×2 grid
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 24, right: 24, bottom: 24),
-                      child: Row(children: [
-                        Expanded(child: Column(children: [
-                          _QuickCard(
-                            iconAsset: ResQIcons.userMultiple,
-                            label: 'Report for\nsomeone',
-                            onTap: () => Navigator.push(context,
-                                MaterialPageRoute(
-                                    builder: (_) => const ReportWhoScreen())),
-                          ),
-                          const SizedBox(height: 16),
-                          _QuickCard(
-                            iconAsset: ResQIcons.phoneAdd,
-                            label: 'Emergency\ncontacts',
-                            onTap: () => Navigator.push(context,
-                                MaterialPageRoute(
-                                    builder: (_) =>
-                                    const EmergencyContactScreen())),
-                          ),
-                        ])),
-                        const SizedBox(width: 16),
-                        Expanded(child: Column(children: [
-                          _QuickCard(
-                            iconAsset: ResQIcons.firstAid,
-                            label: 'First aid\nguide',
-                            onTap: () {},
-                          ),
-                          const SizedBox(height: 16),
-                          _QuickCard(
-                            iconAsset: ResQIcons.healthMetrics,
-                            label: 'Medical\nprofile',
-                            onTap: () => Navigator.push(context,
-                                MaterialPageRoute(
-                                    builder: (_) =>
-                                    const MedicalProfileScreen())),
-                          ),
-                        ])),
-                      ]),
+                    const SizedBox(height: 14),
+                    GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.25,
+                      children: [
+                        _QuickCard(
+                          iconAsset: ResQIcons.userMultiple,
+                          label: 'Report for someone',
+                          onTap: () => Navigator.push(context,
+                              MaterialPageRoute(
+                                  builder: (_) => const ReportWhoScreen())),
+                        ),
+                        _QuickCard(
+                          iconAsset: ResQIcons.firstAid,
+                          label: 'First aid guide',
+                          onTap: () {},
+                        ),
+                        _QuickCard(
+                          iconAsset: ResQIcons.phoneAdd,
+                          label: 'Emergency contacts',
+                          onTap: () => Navigator.push(context,
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                  const EmergencyContactScreen())),
+                        ),
+                        _QuickCard(
+                          iconAsset: ResQIcons.healthMetrics,
+                          label: 'Medical profile',
+                          onTap: () => Navigator.push(context,
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                  const MedicalProfileScreen())),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
 
-              // ── Safety Tip ──────────────────────────────────────
+              const SizedBox(height: 20),
+
+              // ── Safety Tip ────────────────────────────────────────
               Padding(
-                padding: const EdgeInsets.fromLTRB(23, 0, 23, 32),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(16),
                   decoration: ShapeDecoration(
                     color: const Color(0xFFEAEBF6),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ResQIcon(ResQIcons.bulb, size: 24,
+                      ResQIcon(ResQIcons.bulb, size: 22,
                           color: const Color(0xFF00004D)),
                       const SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('SAFETY TIP OF THE DAY',
-                                style: TextStyle(color: Color(0xFF00004D),
-                                    fontSize: 12, fontFamily: 'Inter',
-                                    fontWeight: FontWeight.w500, height: 1.40)),
-                            SizedBox(height: 5),
-                            Text(
-                              'Keep a basic first aid kit in your vehicle at all times. Check expiration dates every six months.',
-                              style: TextStyle(color: Color(0xFF4F4F4F),
-                                  fontSize: 12, fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w400, height: 1.40),
-                            ),
-                          ],
-                        ),
-                      ),
+                      const Expanded(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('SAFETY TIP OF THE DAY',
+                              style: TextStyle(color: Color(0xFF00004D),
+                                  fontSize: 11, fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w600, height: 1.40,
+                                  letterSpacing: 0.5)),
+                          SizedBox(height: 4),
+                          Text(
+                            'Keep a basic first aid kit in your vehicle at all times. Check expiration dates every six months.',
+                            style: TextStyle(color: Color(0xFF4F4F4F),
+                                fontSize: 13, fontFamily: 'Inter',
+                                fontWeight: FontWeight.w400, height: 1.50),
+                          ),
+                        ],
+                      )),
                     ],
                   ),
                 ),
@@ -532,7 +551,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 }
 
-// ─── Quick Action Card ─────────────────────────────────────────────────────
+// ─── Quick Action Card ────────────────────────────────────────────────────────
 class _QuickCard extends StatelessWidget {
   final String iconAsset, label;
   final VoidCallback onTap;
@@ -543,43 +562,46 @@ class _QuickCard extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
     onTap: onTap,
     child: Container(
-      height: 131,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      padding: const EdgeInsets.all(16),
       decoration: ShapeDecoration(
         color: Colors.white,
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8)),
+            borderRadius: BorderRadius.circular(12)),
         shadows: const [BoxShadow(
-            color: Color(0x0C000000), blurRadius: 2,
-            offset: Offset(0, 1))],
+            color: Color(0x0F000000),
+            blurRadius: 4, offset: Offset(0, 2))],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             width: 40, height: 40,
             decoration: ShapeDecoration(
               color: const Color(0xFFEEF2FF),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(10)),
             ),
             child: Center(
-              child: ResQIcon(iconAsset, size: 24,
-                  color: AppColors.navy),
+              child: ResQIcon(iconAsset, size: 22, color: AppColors.navy),
             ),
           ),
-          const SizedBox(height: 11),
+          const SizedBox(height: 10),
           Text(label,
-              style: const TextStyle(color: Color(0xFF00004D),
-                  fontSize: 14, fontFamily: 'Inter',
-                  fontWeight: FontWeight.w600, height: 1.40)),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                  color: Color(0xFF00004D), fontSize: 13,
+                  fontFamily: 'Inter', fontWeight: FontWeight.w600,
+                  height: 1.35)),
         ],
       ),
     ),
   );
 }
 
-// ─── Bottom Nav ────────────────────────────────────────────────────────────
+// ─── Bottom Nav ───────────────────────────────────────────────────────────────
 class _BottomNav extends StatelessWidget {
   final int selected;
   final void Function(int) onTap;
@@ -593,23 +615,35 @@ class _BottomNav extends StatelessWidget {
     ),
     child: SafeArea(
       child: Padding(
-        padding: const EdgeInsets.only(
-            top: 20, left: 24, right: 24, bottom: 8),
+        padding: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 8),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _NavItem(iconAsset: ResQIcons.sos, label: 'SOS',
-                  active: selected == 0, onTap: () => onTap(0)),
-              _NavItem(iconAsset: ResQIcons.history, label: 'History',
-                  active: selected == 1, onTap: () => onTap(1)),
-              _NavItem(iconAsset: ResQIcons.settings, label: 'Settings',
-                  active: selected == 2, onTap: () => onTap(2)),
+              // Home/SOS tab — uses home twotone icon
+              _NavItem(
+                iconAsset: ResQIcons.home,
+                label: 'SOS',
+                active: selected == 0,
+                onTap: () => onTap(0),
+              ),
+              _NavItem(
+                iconAsset: ResQIcons.history,
+                label: 'History',
+                active: selected == 1,
+                onTap: () => onTap(1),
+              ),
+              _NavItem(
+                iconAsset: ResQIcons.settings,
+                label: 'Settings',
+                active: selected == 2,
+                onTap: () => onTap(2),
+              ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Container(
-            width: 224, height: 6,
+            width: 224, height: 5,
             decoration: ShapeDecoration(
               color: const Color(0xFFA7A7A7),
               shape: RoundedRectangleBorder(
@@ -635,10 +669,10 @@ class _NavItem extends StatelessWidget {
     child: Column(mainAxisSize: MainAxisSize.min, children: [
       ResQIcon(iconAsset, size: 24,
           color: active ? AppColors.navy : const Color(0xFF7B7B7B)),
-      const SizedBox(height: 8),
+      const SizedBox(height: 6),
       Text(label, style: TextStyle(
           color: active ? AppColors.navy : const Color(0xFF7B7B7B),
-          fontSize: 16, fontFamily: 'Inter',
+          fontSize: 14, fontFamily: 'Inter',
           fontWeight: active ? FontWeight.w600 : FontWeight.w400,
           height: 1.40)),
     ]),

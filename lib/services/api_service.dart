@@ -22,6 +22,7 @@ class ApiResult {
 const _kAccessToken  = 'access_token';
 const _kRefreshToken = 'refresh_token';
 const _kUserId       = 'user_id';
+const _kUserName     = 'user_name';
 
 // ─── ResQ API Service ─────────────────────────────────────────────────────────
 class ResQApiService {
@@ -56,6 +57,7 @@ class ResQApiService {
         // Save userId so the verify-email screen can use it
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(_kUserId, body['userId'] ?? '');
+        await prefs.setString(_kUserName, fullname);
 
         return ApiResult(
           success: true,
@@ -133,6 +135,11 @@ class ResQApiService {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(_kAccessToken,  body['accessToken']);
         await prefs.setString(_kRefreshToken, body['refreshToken']);
+        // Save user name from response if available
+        final name = body['fullname'] ?? body['name'] ?? body['userName'] ?? '';
+        if (name.toString().isNotEmpty) {
+          await prefs.setString(_kUserName, name.toString());
+        }
 
         return ApiResult(
           success: true,
@@ -180,10 +187,16 @@ class ResQApiService {
     return prefs.getString(_kUserId);
   }
 
+  static Future<String?> getUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kUserName);
+  }
+
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_kAccessToken);
     await prefs.remove(_kRefreshToken);
     await prefs.remove(_kUserId);
+    await prefs.remove(_kUserName);
   }
 }

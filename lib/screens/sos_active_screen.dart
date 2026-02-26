@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import '../services/location_speech_service.dart';
 import '../widgets/resq_widgets.dart';
 import 'ai_guidance_screen.dart';
 import 'sos_tracking_screen.dart';
@@ -7,7 +9,7 @@ import 'sos_tracking_screen.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 // SOS Active Screen — shown after 3-second hold
 // Auto-refreshes after 5 seconds
-// Countdown timer starts at 15:00 and counts down
+// Countdown timer starts at 05:00 and counts down
 // Stop Sharing: dialog differs based on whether timer is at 0 or still running
 // ─────────────────────────────────────────────────────────────────────────────
 class SosActiveScreen extends StatefulWidget {
@@ -19,25 +21,51 @@ class SosActiveScreen extends StatefulWidget {
 
 class _SosActiveScreenState extends State<SosActiveScreen> {
   // 15 minutes in seconds
-  static const _totalSeconds = 15 * 60;
+  static const _totalSeconds = 5 * 60;
 
   int    _secondsLeft     = _totalSeconds;
   bool   _hasRefreshed    = false;
   Timer? _countdownTimer;
   Timer? _refreshTimer;
 
+  // Live location
+  String _locationText = 'Getting location...';
+  Position? _position;
+
   @override
   void initState() {
     super.initState();
     _startRefreshTimer();
     _startCountdown();
+    _startLocationTracking();
   }
 
   @override
   void dispose() {
     _countdownTimer?.cancel();
     _refreshTimer?.cancel();
+    LocationService.removeListener(_onLocationUpdate);
     super.dispose();
+  }
+
+  void _onLocationUpdate(Position pos) {
+    if (mounted) setState(() {
+      _position = pos;
+      _locationText = LocationService.formatPosition(pos);
+    });
+  }
+
+  Future<void> _startLocationTracking() async {
+    final pos = await LocationService.getCurrentPosition();
+    if (pos != null && mounted) {
+      setState(() {
+        _position = pos;
+        _locationText = LocationService.formatPosition(pos);
+      });
+    } else if (mounted) {
+      setState(() => _locationText = 'Location unavailable');
+    }
+    await LocationService.startLiveTracking(_onLocationUpdate);
   }
 
   // Auto-navigate to SosTrackingScreen after 5 seconds
@@ -197,11 +225,23 @@ class _SosActiveScreenState extends State<SosActiveScreen> {
                             fontFamily: 'Inter', fontWeight: FontWeight.w500,
                             height: 1.40)),
                     const SizedBox(height: 4),
-                    const Text('Sharing live location',
+                    Text('Sharing live location',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Color(0xFF000066), fontSize: 16,
+                        style: const TextStyle(color: Color(0xFF000066), fontSize: 16,
                             fontFamily: 'Inter', fontWeight: FontWeight.w400,
                             height: 1.40)),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.my_location, size: 14, color: Color(0xFF000066)),
+                        const SizedBox(width: 4),
+                        Text(_locationText,
+                            style: const TextStyle(color: Color(0xFF000066),
+                                fontSize: 13, fontFamily: 'Inter',
+                                fontWeight: FontWeight.w500)),
+                      ],
+                    ),
 
                     const SizedBox(height: 40),
 

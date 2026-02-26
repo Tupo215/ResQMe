@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import '../services/location_speech_service.dart';
 import '../widgets/resq_widgets.dart';
 import 'ai_guidance_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SOS Tracking Screen — "Help is On the Way" with 15-min countdown
+// SOS Tracking Screen — "Help is On the Way" with 5-min countdown
 // Auto-refreshes after 5 seconds
 // ─────────────────────────────────────────────────────────────────────────────
 class SosTrackingScreen extends StatefulWidget {
@@ -15,26 +17,51 @@ class SosTrackingScreen extends StatefulWidget {
 }
 
 class _SosTrackingScreenState extends State<SosTrackingScreen> {
-  static const _totalSecs = 15 * 60; // 15 minutes
+  static const _totalSecs = 5 * 60; // 5 minutes
   int    _secsLeft  = _totalSecs;
   Timer? _countdown;
   Timer? _refresh;
   bool   _refreshed = false;
 
+  // Live location
+  String _locationText = 'Getting location...';
+  Position? _position;
+
   @override
   void initState() {
     super.initState();
     _startCountdown();
-    // Auto-refresh once after 5 seconds
     _refresh = Timer(const Duration(seconds: 5),
         () { if (mounted) setState(() => _refreshed = true); });
+    _startLocationTracking();
   }
 
   @override
   void dispose() {
     _countdown?.cancel();
     _refresh?.cancel();
+    LocationService.removeListener(_onLocationUpdate);
     super.dispose();
+  }
+
+  void _onLocationUpdate(Position pos) {
+    if (mounted) setState(() {
+      _position = pos;
+      _locationText = LocationService.formatPosition(pos);
+    });
+  }
+
+  Future<void> _startLocationTracking() async {
+    final pos = await LocationService.getCurrentPosition();
+    if (pos != null && mounted) {
+      setState(() {
+        _position = pos;
+        _locationText = LocationService.formatPosition(pos);
+      });
+    } else if (mounted) {
+      setState(() => _locationText = 'Location unavailable');
+    }
+    await LocationService.startLiveTracking(_onLocationUpdate);
   }
 
   void _startCountdown() {
@@ -150,7 +177,7 @@ class _SosTrackingScreenState extends State<SosTrackingScreen> {
                     color: Color(0xFF6666B3)),
                 const SizedBox(width: 8),
                 Text(
-                  'Live location sharing active ($_timerStr)',
+                  'Live location: $_locationText • $_timerStr',
                   style: const TextStyle(color: Color(0xFF6666B3), fontSize: 14,
                       fontFamily: 'Inter', fontWeight: FontWeight.w600,
                       height: 1.40),

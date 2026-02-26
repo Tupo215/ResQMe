@@ -7,9 +7,8 @@ plugins {
 
 android {
     namespace = "com.example.resqme"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = "26.1.10909125"
-    compileSdk = 34
+    compileSdk = 36
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -42,4 +41,12 @@ android {
 
 flutter {
     source = "../.."
+}
+
+subprojects {
+    afterEvaluate {
+        extensions.findByType<com.android.build.gradle.BaseExtension>()?.apply {
+            ndkVersion = "27.0.12077973"
+        }
+    }
 }
