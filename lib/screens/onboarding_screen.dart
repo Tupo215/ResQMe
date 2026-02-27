@@ -215,7 +215,7 @@ class _OnboardingPage extends StatelessWidget {
                       data.title,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.black.withValues(alpha: 0.20),
+                        color: Colors.black,
                         fontSize: 32,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w500,
@@ -387,7 +387,7 @@ class _ImagePlaceholder extends StatelessWidget {
         Text(
           'Add assets/$file',
           style: TextStyle(
-            color: Colors.black.withValues(alpha: 0.20),
+            color: Colors.black,
             fontSize: 12,
             fontFamily: 'Inter',
             fontStyle: FontStyle.italic,

@@ -107,7 +107,7 @@ class _ReportWhoScreenState extends State<ReportWhoScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             child: ReportNextButton(
-              enabled: true,
+              enabled: _selected != null,
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => ReportWhatScreen(reportingFor: _selected!))),
             ),

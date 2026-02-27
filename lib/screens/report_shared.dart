@@ -9,35 +9,40 @@ class ReportAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    width: double.infinity, height: 78,
-    padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
     decoration: const ShapeDecoration(
       color: Color(0xFFEFEFF1),
       shape: RoundedRectangleBorder(
           side: BorderSide(width: 1, color: Color(0xFFD3D3D3))),
     ),
-    child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-      GestureDetector(
-        onTap: onBack,
-        child: Container(
-          width: 56, height: 56, padding: const EdgeInsets.all(10),
-          decoration: ShapeDecoration(
-            color: const Color(0xFFD3D3D3),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(50)),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Back arrow — smaller (40×40), centered with title
+        GestureDetector(
+          onTap: onBack,
+          child: Container(
+            width: 40, height: 40, padding: const EdgeInsets.all(9),
+            decoration: ShapeDecoration(
+              color: const Color(0xFFD3D3D3),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50)),
+            ),
+            child: ResQIcon(ResQIcons.chevronLeft, size: 18, color: Colors.white),
           ),
-          child: ResQIcon(ResQIcons.chevronLeft, size: 24, color: Colors.white),
         ),
-      ),
-      const SizedBox(width: 16),
-      Expanded(
-        child: Text(title,
-            style: TextStyle(
-                color: Colors.black.withValues(alpha: 0.20),
-                fontSize: 24, fontFamily: 'Inter',
-                fontWeight: FontWeight.w600, height: 1.40)),
-      ),
-    ]),
+        const SizedBox(width: 14),
+        // Title — lighter weight, vertically centered with arrow
+        Expanded(
+          child: Text(title,
+              style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 20, fontFamily: 'Inter',
+                  fontWeight: FontWeight.w500, height: 1.30)),
+        ),
+      ],
+    ),
   );
 }
 

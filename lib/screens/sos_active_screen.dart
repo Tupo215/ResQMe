@@ -163,7 +163,7 @@ class _SosActiveScreenState extends State<SosActiveScreen> {
                       child: Text(
                         'EMERGENCY ACTIVATED',
                         style: TextStyle(
-                          color: Colors.black.withValues(alpha: 0.20),
+                          color: Colors.black,
                           fontSize: 24, fontFamily: 'Inter',
                           fontWeight: FontWeight.w600, height: 1.40,
                         ),
@@ -221,7 +221,7 @@ class _SosActiveScreenState extends State<SosActiveScreen> {
 
                     // ── Help is on the way ────────────────────────────
                     const Text('Help is on the way',
-                        style: TextStyle(color: Color(0xFF00004D), fontSize: 32,
+                        style: const TextStyle(color: Colors.black, fontSize: 32,
                             fontFamily: 'Inter', fontWeight: FontWeight.w500,
                             height: 1.40)),
                     const SizedBox(height: 4),
