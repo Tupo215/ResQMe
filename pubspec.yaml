@@ -17,22 +17,14 @@ dependencies:
   flutter_contacts: ^1.1.9+2
   speech_to_text: ^7.0.0
   geolocator: ^13.0.0
-<<<<<<< HEAD
   app_links: ^6.0.0
-  permission_handler: ^11.0.0
-=======
-  permission_handler: ^11.0.1
+  permission_handler: ^11.1.1
   contacts_service: ^0.6.3
->>>>>>> f76ee32d63eec63dc6604d49f2d36b35ab9dd93b
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
-
-  
-
-
 
 flutter:
   uses-material-design: true
