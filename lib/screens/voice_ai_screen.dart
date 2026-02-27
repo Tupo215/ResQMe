@@ -22,7 +22,7 @@ const Color _lightPurple = Color(0xFFCCCCE6);
 const Color _bg          = Color(0xFFEFEFF1);
 const Color _grey        = Color(0xFFD3D3D3);
 const Color _darkGrey    = Color(0xFF4F4F4F);
-const Color _mutedText   = Color(0x33000000);
+const Color _mutedText   = Colors.black;
 const Color _red         = Color(0xFFD00000);
 
 // =============================================================================
@@ -77,9 +77,9 @@ class _VoiceAiScreenState extends State<VoiceAiScreen>
                         child: const Icon(Icons.menu, size: 24),
                       ),
                       const Spacer(),
-                      Text('AI Name',
-                          style: TextStyle(
-                              color: _mutedText, fontSize: 16,
+                      Text('NORA',
+                          style: const TextStyle(
+                              color: Colors.black, fontSize: 16,
                               fontFamily: 'Inter', fontWeight: FontWeight.w500)),
                       const Spacer(),
                       const SizedBox(width: 24),
@@ -91,8 +91,8 @@ class _VoiceAiScreenState extends State<VoiceAiScreen>
 
                 // Welcome title
                 Text('Welcome to ResQMeAI',
-                    style: TextStyle(
-                        color: _mutedText, fontSize: 32,
+                    style: const TextStyle(
+                        color: Colors.black, fontSize: 32,
                         fontFamily: 'Inter', fontWeight: FontWeight.w500,
                         height: 1.40)),
 
@@ -223,7 +223,7 @@ class _SideDrawerState extends State<_SideDrawer> {
                       borderRadius: BorderRadius.circular(50)),
                 ),
                 child: Row(children: [
-                  const Icon(Icons.search, size: 24, color: Color(0x33000000)),
+                  const Icon(Icons.search, size: 24, color: Colors.black),
                   const SizedBox(width: 12),
                   Text('Search',
                       style: TextStyle(color: _mutedText, fontSize: 16,
@@ -804,8 +804,8 @@ class _VoiceAiChatScreenState extends State<VoiceAiChatScreen> {
                       child: const Icon(Icons.menu, size: 24),
                     ),
                     const Spacer(),
-                    Text('AI Name',
-                        style: TextStyle(color: _mutedText, fontSize: 16,
+                    Text('NORA',
+                        style: const TextStyle(color: Colors.black, fontSize: 16,
                             fontFamily: 'Inter', fontWeight: FontWeight.w500)),
                     const Spacer(),
                     GestureDetector(

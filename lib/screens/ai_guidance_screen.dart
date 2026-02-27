@@ -55,8 +55,8 @@ class _AiGuidanceScreenState extends State<AiGuidanceScreen> {
                   const SizedBox(width: 16),
                   const Expanded(
                     child: Text('NORA',
-                        style: TextStyle(
-                            color: Color(0xFF00000033),
+                        style: const TextStyle(
+                            color: Colors.black,
                             fontSize: 24, fontFamily: 'Inter',
                             fontWeight: FontWeight.w600, height: 1.40)),
                   ),
@@ -123,13 +123,13 @@ class _AiGuidanceScreenState extends State<AiGuidanceScreen> {
 
                   // ── Emergency type ────────────────────────────────
                   const Text('CURRENT SITUATION',
-                      style: TextStyle(color: Color(0xFF8A8F98), fontSize: 14,
+                      style: TextStyle(color: Colors.black, fontSize: 14,
                           fontFamily: 'Inter', fontWeight: FontWeight.w600,
                           height: 1.40)),
                   const SizedBox(height: 4),
                   const Text('What type of emergency is this?',
-                      style: TextStyle(
-                          color: Color(0xFF00000033),
+                      style: const TextStyle(
+                          color: Colors.black,
                           fontSize: 16, fontFamily: 'Inter',
                           fontWeight: FontWeight.w600, height: 1.40)),
                   const SizedBox(height: 12),
@@ -165,7 +165,7 @@ class _AiGuidanceScreenState extends State<AiGuidanceScreen> {
                             ),
                             child: Center(child: ResQIcon(e.iconAsset, size: 20,
                                 color: isSelected
-                                    ? AppColors.navy : const Color(0xFF7B7B7B))),
+                                    ? AppColors.navy : Colors.black)),
                           ),
                           const SizedBox(width: 12),
                           Expanded(child: Column(
@@ -174,7 +174,7 @@ class _AiGuidanceScreenState extends State<AiGuidanceScreen> {
                               Text(e.title, style: TextStyle(
                                   color: isSelected
                                       ? AppColors.navy
-                                      : Colors.black.withValues(alpha: 0.20),
+                                      : Colors.black,
                                   fontSize: 15, fontFamily: 'Inter',
                                   fontWeight: FontWeight.w600, height: 1.40)),
                               Text(e.desc, style: const TextStyle(
@@ -203,8 +203,8 @@ class _AiGuidanceScreenState extends State<AiGuidanceScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text('Are you injured?',
-                            style: TextStyle(
-                                color: Color(0xFF00000033),
+                            style: const TextStyle(
+                                color: Colors.black,
                                 fontSize: 16, fontFamily: 'Inter',
                                 fontWeight: FontWeight.w600, height: 1.40)),
                         const SizedBox(height: 12),
@@ -244,7 +244,7 @@ class _AiGuidanceScreenState extends State<AiGuidanceScreen> {
                       children: [
                         Text('Do this now',
                             style: TextStyle(
-                                color: Colors.black.withValues(alpha: 0.20),
+                                color: Colors.black,
                                 fontSize: 14, fontFamily: 'Inter',
                                 fontWeight: FontWeight.w600, height: 1.40)),
                         const SizedBox(height: 8),
@@ -256,21 +256,21 @@ class _AiGuidanceScreenState extends State<AiGuidanceScreen> {
                               Text(
                                 '1. Move to a safe place away from traffic or\n   danger if you can.',
                                 style: TextStyle(
-                                    color: Colors.black.withValues(alpha: 0.20),
+                                    color: Colors.black,
                                     fontSize: 14, fontFamily: 'Inter',
                                     fontWeight: FontWeight.w400, height: 1.40)),
                               const SizedBox(height: 8),
                               Text(
                                 '2. Check if you can breathe normally and\n   speak in full sentences.',
                                 style: TextStyle(
-                                    color: Colors.black.withValues(alpha: 0.20),
+                                    color: Colors.black,
                                     fontSize: 14, fontFamily: 'Inter',
                                     fontWeight: FontWeight.w400, height: 1.40)),
                               const SizedBox(height: 8),
                               Text(
                                 '3. If others are with you, ask someone to\n   stay on lookout for responders.',
                                 style: TextStyle(
-                                    color: Colors.black.withValues(alpha: 0.20),
+                                    color: Colors.black,
                                     fontSize: 14, fontFamily: 'Inter',
                                     fontWeight: FontWeight.w400, height: 1.40)),
                             ],
@@ -281,8 +281,8 @@ class _AiGuidanceScreenState extends State<AiGuidanceScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('Prefer listening instead of\nreading?',
-                                style: TextStyle(
-                                    color: Color(0xFF7B7B7B), fontSize: 14,
+                                style: const TextStyle(
+                                    color: Colors.black, fontSize: 14,
                                     fontFamily: 'Inter',
                                     fontWeight: FontWeight.w400, height: 1.40)),
                             Container(
@@ -302,7 +302,7 @@ class _AiGuidanceScreenState extends State<AiGuidanceScreen> {
                                 const SizedBox(width: 8),
                                 Text('Play voice\nguidance',
                                     style: TextStyle(
-                                        color: Colors.black.withValues(alpha: 0.20),
+                                        color: Colors.black,
                                         fontSize: 13, fontFamily: 'Inter',
                                         fontWeight: FontWeight.w600, height: 1.40)),
                               ]),

@@ -155,7 +155,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           children: [
                             Text('Language',
                                 style: TextStyle(
-                                    color: Colors.black.withValues(alpha: 0.20),
+                                    color: Colors.black,
                                     fontSize: 16, fontFamily: 'Inter',
                                     fontWeight: FontWeight.w500, height: 1.40)),
                             const Text('English',
@@ -310,7 +310,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _sectionLabel(String text) => Text(text,
-      style: TextStyle(color: Colors.black.withValues(alpha: 0.20),
+      style: TextStyle(color: Colors.black,
           fontSize: 14, fontFamily: 'Inter',
           fontWeight: FontWeight.w600, height: 1.40));
 
@@ -332,7 +332,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   );
 
   Widget get _chevron => ResQIcon(ResQIcons.chevronRight, size: 24,
-      color: Colors.black.withValues(alpha: 0.20));
+      color: Colors.black);
 }
 
 // ─── Settings Tile ────────────────────────────────────────────────────────────
@@ -384,8 +384,8 @@ class _SettingsTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label,
-                  style: TextStyle(
-                      color: Colors.black.withValues(alpha: 0.20),
+                  style: const TextStyle(
+                      color: Colors.black,
                       fontSize: 16, fontFamily: 'Inter',
                       fontWeight: FontWeight.w500, height: 1.40)),
               if (subtitle != null)

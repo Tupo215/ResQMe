@@ -88,7 +88,7 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
                 const SizedBox(width: 64),
                 Text('Medical Profile',
                     style: TextStyle(
-                        color: Colors.black.withValues(alpha: 0.20),
+                        color: Colors.black,
                         fontSize: 24, fontFamily: 'Inter',
                         fontWeight: FontWeight.w600, height: 1.40)),
               ]),
@@ -165,7 +165,7 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
                         children: [
                           Text('Select Blood Type',
                               style: TextStyle(
-                                  color: Colors.black.withValues(alpha: 0.20),
+                                  color: Colors.black,
                                   fontSize: 16, fontFamily: 'Inter',
                                   fontWeight: FontWeight.w600, height: 1.40)),
                           const SizedBox(height: 8),
@@ -210,7 +210,7 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
                         children: [
                           Text('Input all that apply',
                               style: TextStyle(
-                                  color: Colors.black.withValues(alpha: 0.20),
+                                  color: Colors.black,
                                   fontSize: 16, fontFamily: 'Inter',
                                   fontWeight: FontWeight.w600, height: 1.40)),
                           const SizedBox(height: 12),
@@ -289,7 +289,7 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
                         children: [
                           Text('Input all that apply',
                               style: TextStyle(
-                                  color: Colors.black.withValues(alpha: 0.20),
+                                  color: Colors.black,
                                   fontSize: 16, fontFamily: 'Inter',
                                   fontWeight: FontWeight.w600, height: 1.40)),
                           const SizedBox(height: 12),
@@ -497,11 +497,11 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
         children: [
           Row(children: [
             ResQIcon(iconAsset, size: 32,
-                color: Colors.black.withValues(alpha: 0.20)),
+                color: Colors.black),
             const SizedBox(width: 12),
             Text(title,
                 style: TextStyle(
-                    color: Colors.black.withValues(alpha: 0.20),
+                    color: Colors.black,
                     fontSize: 24, fontFamily: 'Inter',
                     fontWeight: FontWeight.w600, height: 1.40)),
           ]),
@@ -553,7 +553,7 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label,
             style: TextStyle(
-                color: Colors.black.withValues(alpha: 0.20),
+                color: Colors.black,
                 fontSize: 16, fontFamily: 'Inter',
                 fontWeight: FontWeight.w600, height: 1.40)),
         const SizedBox(height: 8),

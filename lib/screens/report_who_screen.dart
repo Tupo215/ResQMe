@@ -56,7 +56,7 @@ class _ReportWhoScreenState extends State<ReportWhoScreen> {
                           children: [
                             Text("You're doing the right thing",
                                 style: TextStyle(
-                                    color: Colors.black.withValues(alpha: 0.20),
+                                    color: Colors.black,
                                     fontSize: 16, fontFamily: 'Inter',
                                     fontWeight: FontWeight.w600, height: 1.40)),
                             const Text(
@@ -75,7 +75,7 @@ class _ReportWhoScreenState extends State<ReportWhoScreen> {
 
                   Text('Who are you reporting for?',
                       style: TextStyle(
-                          color: Colors.black.withValues(alpha: 0.20),
+                          color: Colors.black,
                           fontSize: 24, fontFamily: 'Inter',
                           fontWeight: FontWeight.w600, height: 1.40)),
                   const SizedBox(height: 16),
@@ -107,7 +107,7 @@ class _ReportWhoScreenState extends State<ReportWhoScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             child: ReportNextButton(
-              enabled: _selected != null,
+              enabled: true,
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => ReportWhatScreen(reportingFor: _selected!))),
             ),
@@ -167,7 +167,7 @@ class _WhoCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title, style: TextStyle(
-                color: Colors.black.withValues(alpha: 0.20),
+                color: Colors.black,
                 fontSize: 16, fontFamily: 'Inter', fontWeight: FontWeight.w600, height: 1.40)),
             Text(subtitle, style: const TextStyle(color: Color(0xFF7B7B7B),
                 fontSize: 14, fontFamily: 'Inter', fontWeight: FontWeight.w400, height: 1.40)),
