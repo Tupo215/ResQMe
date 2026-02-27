@@ -1,0 +1,15 @@
+# ════════════════════════════════════════════════════════════════════════════
+# ADD THIS to your pubspec.yaml under the  dependencies:  section
+# ════════════════════════════════════════════════════════════════════════════
+
+dependencies:
+  # ... your existing dependencies ...
+
+  # Deep link handling — catches mycoolapp://verification-success?...
+  app_links: ^6.0.0
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# After adding, run:
+#   flutter pub get
+# ════════════════════════════════════════════════════════════════════════════
