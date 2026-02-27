@@ -49,7 +49,7 @@ class _ReportVictimScreenState extends State<ReportVictimScreen> {
                   const SizedBox(height: 32),
 
                   Text('Victim status', style: TextStyle(
-                      color: Colors.black.withValues(alpha: 0.20),
+                      color: Colors.black,
                       fontSize: 16, fontFamily: 'Inter', fontWeight: FontWeight.w600)),
                   const SizedBox(height: 12),
 
@@ -90,7 +90,7 @@ class _ReportVictimScreenState extends State<ReportVictimScreen> {
                               Text(s.label, style: TextStyle(
                                   color: _victimStatus == s.key
                                       ? const Color(0xFF333399)
-                                      : Colors.black.withValues(alpha: 0.20),
+                                      : Colors.black,
                                   fontSize: 16, fontFamily: 'Inter', fontWeight: FontWeight.w600)),
                               Text(s.sub, style: const TextStyle(color: Color(0xFF7B7B7B),
                                   fontSize: 13, fontFamily: 'Inter')),
@@ -110,7 +110,7 @@ class _ReportVictimScreenState extends State<ReportVictimScreen> {
                   const SizedBox(height: 8),
 
                   Text('Number of victims', style: TextStyle(
-                      color: Colors.black.withValues(alpha: 0.20),
+                      color: Colors.black,
                       fontSize: 16, fontFamily: 'Inter', fontWeight: FontWeight.w600)),
                   const SizedBox(height: 12),
                   Container(
@@ -162,11 +162,11 @@ class _ReportVictimScreenState extends State<ReportVictimScreen> {
 
                   Row(children: [
                     Text('Additional notes', style: TextStyle(
-                        color: Colors.black.withValues(alpha: 0.20),
+                        color: Colors.black,
                         fontSize: 16, fontFamily: 'Inter', fontWeight: FontWeight.w600)),
                     const SizedBox(width: 6),
                     Text('(optional)', style: TextStyle(
-                        color: Colors.black.withValues(alpha: 0.20),
+                        color: Colors.black,
                         fontSize: 13, fontFamily: 'Inter')),
                   ]),
                   const SizedBox(height: 12),
@@ -198,7 +198,7 @@ class _ReportVictimScreenState extends State<ReportVictimScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             child: ReportNextButton(
-              enabled: _victimStatus != null,
+              enabled: true,
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => ReportInfoScreen(
                     reportingFor: widget.reportingFor, emergencyType: widget.emergencyType,

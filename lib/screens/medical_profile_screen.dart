@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/resq_widgets.dart';
 import '../widgets/resq_icon.dart';
+import '../services/api_service.dart';
 
 class MedicalProfileScreen extends StatefulWidget {
   const MedicalProfileScreen({super.key});
@@ -15,6 +16,7 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
   bool _shareAllergies = true;
   bool _shareConditions = false;
   bool _shareInsurance = true;
+  bool _isSaving = false;
 
   final _allergiesController = TextEditingController();
   final _conditionsController = TextEditingController();
@@ -24,6 +26,33 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
       text: 'Patient is asthmatic. Inhaler is located in the front right pocket. Non smoker. Contact wife (Mrs patient - +234 000 000 000) immediately.');
 
   static const _bloodTypes = ['A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'];
+
+  // Build allergies as JSON string: { "cake" : "severe" }  (image 3)
+  String _buildAllergiesJson() {
+    if (_allergies.isEmpty) return '';
+    final pairs = _allergies.map((a) => '"$a" : "unknown"').join(', ');
+    return '{ $pairs }';
+  }
+
+  // Build healthState as JSON string: {"hypertension" : "30" }  (image 3)
+  String _buildHealthStateJson() {
+    if (_conditions.isEmpty) return '';
+    final pairs = _conditions.map((c) => '"${c.toLowerCase()}" : "active"').join(', ');
+    return '{$pairs}';
+  }
+
+  Future<void> _saveProfile() async {
+    setState(() => _isSaving = true);
+    final result = await ResQApiService.createProfile(
+      gender:      'unknown',  // gender collected in personal profile screen
+      allergies:   _shareAllergies   ? _buildAllergiesJson()   : null,
+      healthState: _shareConditions  ? _buildHealthStateJson() : null,
+    );
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+    showResQSnackBar(context, result.message, isError: !result.success);
+    if (result.success) Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +88,7 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
                 const SizedBox(width: 64),
                 Text('Medical Profile',
                     style: TextStyle(
-                        color: Colors.black.withValues(alpha: 0.20),
+                        color: Colors.black,
                         fontSize: 24, fontFamily: 'Inter',
                         fontWeight: FontWeight.w600, height: 1.40)),
               ]),
@@ -136,7 +165,7 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
                         children: [
                           Text('Select Blood Type',
                               style: TextStyle(
-                                  color: Colors.black.withValues(alpha: 0.20),
+                                  color: Colors.black,
                                   fontSize: 16, fontFamily: 'Inter',
                                   fontWeight: FontWeight.w600, height: 1.40)),
                           const SizedBox(height: 8),
@@ -181,7 +210,7 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
                         children: [
                           Text('Input all that apply',
                               style: TextStyle(
-                                  color: Colors.black.withValues(alpha: 0.20),
+                                  color: Colors.black,
                                   fontSize: 16, fontFamily: 'Inter',
                                   fontWeight: FontWeight.w600, height: 1.40)),
                           const SizedBox(height: 12),
@@ -260,7 +289,7 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
                         children: [
                           Text('Input all that apply',
                               style: TextStyle(
-                                  color: Colors.black.withValues(alpha: 0.20),
+                                  color: Colors.black,
                                   fontSize: 16, fontFamily: 'Inter',
                                   fontWeight: FontWeight.w600, height: 1.40)),
                           const SizedBox(height: 12),
@@ -426,11 +455,15 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(40)),
                         ),
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Save',
-                            style: TextStyle(color: Color(0xFFEFEFF1),
-                                fontSize: 16, fontFamily: 'Inter',
-                                fontWeight: FontWeight.w500, height: 1.40)),
+                        onPressed: _isSaving ? null : _saveProfile,
+                        child: _isSaving
+                            ? const SizedBox(width: 24, height: 24,
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2))
+                            : const Text('Save',
+                                style: TextStyle(color: Color(0xFFEFEFF1),
+                                    fontSize: 16, fontFamily: 'Inter',
+                                    fontWeight: FontWeight.w500, height: 1.40)),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -464,11 +497,11 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
         children: [
           Row(children: [
             ResQIcon(iconAsset, size: 32,
-                color: Colors.black.withValues(alpha: 0.20)),
+                color: Colors.black),
             const SizedBox(width: 12),
             Text(title,
                 style: TextStyle(
-                    color: Colors.black.withValues(alpha: 0.20),
+                    color: Colors.black,
                     fontSize: 24, fontFamily: 'Inter',
                     fontWeight: FontWeight.w600, height: 1.40)),
           ]),
@@ -520,7 +553,7 @@ class _MedicalProfileScreenState extends State<MedicalProfileScreen> {
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label,
             style: TextStyle(
-                color: Colors.black.withValues(alpha: 0.20),
+                color: Colors.black,
                 fontSize: 16, fontFamily: 'Inter',
                 fontWeight: FontWeight.w600, height: 1.40)),
         const SizedBox(height: 8),

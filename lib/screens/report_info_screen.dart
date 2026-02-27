@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'report_shared.dart';
 import 'report_sent_screen.dart';
 import '../widgets/resq_icon.dart';
+import '../widgets/resq_widgets.dart';
+import '../services/api_service.dart';
+import '../services/location_speech_service.dart';
 
 class ReportInfoScreen extends StatefulWidget {
   final String reportingFor, emergencyType, victimStatus;
@@ -17,10 +20,43 @@ class ReportInfoScreen extends StatefulWidget {
 class _ReportInfoScreenState extends State<ReportInfoScreen> {
   final _nameCtrl  = TextEditingController();
   final _phoneCtrl = TextEditingController();
-  bool  _anonymous = false;
+  bool  _anonymous    = false;
+  bool  _isSubmitting = false;
 
   @override
   void dispose() { _nameCtrl.dispose(); _phoneCtrl.dispose(); super.dispose(); }
+
+  Future<void> _submitReport() async {
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
+
+    // Get live GPS location
+    final position = await LocationService.getCurrentPosition();
+
+    final result = await ResQApiService.reportEmergency(
+      // Confirmed required fields (image 2)
+      latitude:      position?.latitude  ?? 0.0,
+      longitude:     position?.longitude ?? 0.0,
+      // Additional context
+      emergencyType: widget.emergencyType,
+      reportingFor:  widget.reportingFor,
+      description:   widget.notes.isNotEmpty ? widget.notes : null,
+    );
+
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
+
+    if (result.success) {
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => ReportSentScreen(
+            emergencyType: widget.emergencyType,
+            victimCount:   widget.victimCount,
+            reporterName:  _anonymous ? null : _nameCtrl.text.trim(),
+          )));
+    } else {
+      showResQSnackBar(context, result.message, isError: true);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,26 +168,29 @@ class _ReportInfoScreenState extends State<ReportInfoScreen> {
 
                   // ── Continue button ───────────────────────────────
                   GestureDetector(
-                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => ReportSentScreen(
-                          emergencyType: widget.emergencyType,
-                          victimCount: widget.victimCount,
-                          reporterName: _anonymous ? null : _nameCtrl.text.trim(),
-                        ))),
+                    onTap: _isSubmitting ? null : _submitReport,
                     child: Container(
                       width: double.infinity, height: 50,
                       decoration: ShapeDecoration(
-                        color: const Color(0xFF000080),
+                        color: _isSubmitting
+                            ? const Color(0xFF7B7B7B)
+                            : const Color(0xFF000080),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(40)),
                       ),
-                      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        const Text('Continue to Final Step', style: TextStyle(
-                            color: Color(0xFFEFEFF1), fontSize: 16,
-                            fontFamily: 'Inter', fontWeight: FontWeight.w500, height: 1.40)),
-                        const SizedBox(width: 8),
-                        ResQIcon(ResQIcons.arrowRight, size: 20, color: const Color(0xFFEFEFF1)),
-                      ]),
+                      child: _isSubmitting
+                          ? const Center(child: SizedBox(width: 24, height: 24,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2)))
+                          : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                              const Text('Submit Emergency Report', style: TextStyle(
+                                  color: Color(0xFFEFEFF1), fontSize: 16,
+                                  fontFamily: 'Inter', fontWeight: FontWeight.w500,
+                                  height: 1.40)),
+                              const SizedBox(width: 8),
+                              ResQIcon(ResQIcons.arrowRight, size: 20,
+                                  color: const Color(0xFFEFEFF1)),
+                            ]),
                     ),
                   ),
                 ],

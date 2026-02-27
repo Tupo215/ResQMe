@@ -26,7 +26,7 @@ class ReportSentScreen extends StatelessWidget {
                 children: [
 
                   Text('Help is on the way', style: TextStyle(
-                      color: Colors.black.withValues(alpha: 0.20),
+                      color: Colors.black,
                       fontSize: 32, fontFamily: 'Inter',
                       fontWeight: FontWeight.w500, height: 1.40)),
                   const SizedBox(height: 8),
@@ -87,7 +87,7 @@ class ReportSentScreen extends StatelessWidget {
                                         shape: BoxShape.circle)),
                                 const SizedBox(width: 6),
                                 Text('LIVE TRACKING', style: TextStyle(
-                                    color: Colors.black.withValues(alpha: 0.20),
+                                    color: Colors.black,
                                     fontSize: 12, fontFamily: 'Inter',
                                     fontWeight: FontWeight.w500, height: 1.40)),
                               ]),
@@ -108,11 +108,11 @@ class ReportSentScreen extends StatelessWidget {
                                     color: Color(0xFF7B7B7B), fontSize: 12,
                                     fontFamily: 'Inter', fontWeight: FontWeight.w500, height: 1.40)),
                                 Text('Officer J. Doe', style: TextStyle(
-                                    color: Colors.black.withValues(alpha: 0.20),
+                                    color: Colors.black,
                                     fontSize: 24, fontFamily: 'Inter',
                                     fontWeight: FontWeight.w600, height: 1.40)),
                                 Text('Badge #4829 • En Route', style: TextStyle(
-                                    color: Colors.black.withValues(alpha: 0.20),
+                                    color: Colors.black,
                                     fontSize: 14, fontFamily: 'Inter',
                                     fontWeight: FontWeight.w400, height: 1.40)),
                               ],
@@ -133,7 +133,7 @@ class ReportSentScreen extends StatelessWidget {
                           Container(
                             width: double.infinity, height: 50,
                             decoration: ShapeDecoration(
-                              color: const Color(0xFF9999CC),
+                              color: const Color(0xFF000080),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(40)),
                             ),
@@ -171,7 +171,7 @@ class ReportSentScreen extends StatelessWidget {
                         const SizedBox(width: 16),
                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text('$emergencyType Reported', style: TextStyle(
-                              color: Colors.black.withValues(alpha: 0.20),
+                              color: Colors.black,
                               fontSize: 14, fontFamily: 'Inter',
                               fontWeight: FontWeight.w600, height: 1.40)),
                           const Text('Today, 10:42 AM', style: TextStyle(
@@ -186,7 +186,7 @@ class ReportSentScreen extends StatelessWidget {
                         const SizedBox(width: 16),
                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text('1428 Baker St, Downtown', style: TextStyle(
-                              color: Colors.black.withValues(alpha: 0.20),
+                              color: Colors.black,
                               fontSize: 14, fontFamily: 'Inter',
                               fontWeight: FontWeight.w600, height: 1.40)),
                           const Text('Current Location Pin', style: TextStyle(
@@ -230,7 +230,7 @@ class ReportSentScreen extends StatelessWidget {
                   Container(
                     width: double.infinity, height: 50,
                     decoration: ShapeDecoration(
-                      color: const Color(0xFF9999CC),
+                      color: const Color(0xFF000080),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
                     ),
                     child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -252,7 +252,7 @@ class ReportSentScreen extends StatelessWidget {
                     child: SizedBox(
                       width: double.infinity, height: 50,
                       child: Center(child: const Text('Cancel Request', style: TextStyle(
-                          color: Color(0xFF9999CC), fontSize: 16, fontFamily: 'Inter',
+                          color: Color(0xFF000080), fontSize: 16, fontFamily: 'Inter',
                           fontWeight: FontWeight.w500, height: 1.40))),
                     ),
                   ),

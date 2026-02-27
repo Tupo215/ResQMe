@@ -54,7 +54,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                 const SizedBox(width: 16),
                 Text('Personal Profile',
                     style: TextStyle(
-                        color: Colors.black.withValues(alpha: 0.20),
+                        color: Colors.black,
                         fontSize: 24, fontFamily: 'Inter',
                         fontWeight: FontWeight.w600, height: 1.40)),
               ]),
@@ -98,7 +98,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
 
                         // Phone with flag
                         const Text('Phone Number',
-                            style: TextStyle(color: Color(0xFF5F5F5F),
+                            style: TextStyle(color: Colors.black,
                                 fontSize: 16, fontFamily: 'Inter',
                                 fontWeight: FontWeight.w600, height: 1.40)),
                         const SizedBox(height: 8),
@@ -117,7 +117,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                             const SizedBox(width: 8),
                             Text('+234',
                                 style: TextStyle(
-                                    color: Colors.black.withValues(alpha: 0.20),
+                                    color: Colors.black,
                                     fontSize: 16, fontFamily: 'Inter',
                                     fontWeight: FontWeight.w500, height: 1.40)),
                             const SizedBox(width: 16),
@@ -177,17 +177,17 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                             ),
                             child: Row(children: [
                               ResQIcon(ResQIcons.lock, size: 24,
-                                  color: const Color(0xFF7B7B7B)),
+                                  color: Colors.black),
                               const SizedBox(width: 8),
                               const Expanded(
                                 child: Text('Change Password',
-                                    style: TextStyle(color: Color(0xFF7B7B7B),
+                                    style: const TextStyle(color: Colors.black,
                                         fontSize: 16, fontFamily: 'Inter',
                                         fontWeight: FontWeight.w500,
                                         height: 1.40)),
                               ),
                               ResQIcon(ResQIcons.chevronRight, size: 24,
-                                  color: const Color(0xFF7B7B7B)),
+                                  color: Colors.black),
                             ]),
                           ),
                         ),
@@ -223,7 +223,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                         ),
                         onPressed: () => Navigator.pop(context),
                         child: const Text('Cancel',
-                            style: TextStyle(color: Color(0xFF7B7B7B),
+                            style: TextStyle(color: Colors.black,
                                 fontSize: 16, fontFamily: 'Inter',
                                 fontWeight: FontWeight.w500, height: 1.40)),
                       ),
@@ -244,18 +244,18 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
       {TextInputType keyboardType = TextInputType.text}) =>
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label,
-            style: const TextStyle(color: Color(0xFF5F5F5F),
+            style: const TextStyle(color: Colors.black,
                 fontSize: 16, fontFamily: 'Inter',
                 fontWeight: FontWeight.w600, height: 1.40)),
         const SizedBox(height: 8),
         TextField(
           controller: ctrl,
           keyboardType: keyboardType,
-          style: const TextStyle(color: Color(0xFF4F4F4F), fontSize: 16,
+          style: const TextStyle(color: Colors.black, fontSize: 16,
               fontFamily: 'Inter'),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Color(0xFF7B7B7B),
+            hintStyle: const TextStyle(color: Colors.black,
                 fontSize: 16, fontFamily: 'Inter',
                 fontWeight: FontWeight.w500),
             contentPadding: const EdgeInsets.all(16),
@@ -281,7 +281,7 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
       ValueChanged<String?> onChanged) =>
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label,
-            style: const TextStyle(color: Color(0xFF5F5F5F),
+            style: const TextStyle(color: Colors.black,
                 fontSize: 16, fontFamily: 'Inter',
                 fontWeight: FontWeight.w600, height: 1.40)),
         const SizedBox(height: 8),
@@ -299,18 +299,18 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
             child: DropdownButton<String>(
               value: value,
               hint: Text(label,
-                  style: const TextStyle(color: Color(0xFF4F4F4F),
+                  style: const TextStyle(color: Colors.black,
                       fontSize: 16, fontFamily: 'Inter',
                       fontWeight: FontWeight.w500)),
               isExpanded: true,
               icon: ResQIcon(ResQIcons.chevronDown, size: 24,
-                  color: const Color(0xFF4F4F4F)),
+                  color: Colors.black),
               onChanged: onChanged,
               items: items.map((i) => DropdownMenuItem(
                   value: i,
                   child: Text(i, style: const TextStyle(
                       fontFamily: 'Inter', fontSize: 16,
-                      color: Color(0xFF4F4F4F))))).toList(),
+                      color: Colors.black)))).toList(),
             ),
           ),
         ),
