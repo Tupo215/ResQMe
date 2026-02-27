@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 //   http: ^1.2.0
 //   image_picker: ^1.0.7
 //   shared_preferences: ^2.0.0
+//   app_links: ^6.0.0
 // ─────────────────────────────────────────────────────────────────────────────
 
 const String _baseUrl    = 'https://resq-app-741m.onrender.com';
@@ -46,6 +47,13 @@ class ResQApiService {
     await p.setString(_kRefreshToken, refresh);
   }
 
+  /// Called from the deep link handler after email verification.
+  /// Saves the tokens the backend sends back via mycoolapp:// redirect.
+  static Future<void> saveTokensFromDeepLink(
+      String accessToken, String refreshToken) async {
+    await _saveTokens(accessToken, refreshToken);
+  }
+
   static Future<String?> getUserName() async =>
       (await SharedPreferences.getInstance()).getString(_kUserName);
 
@@ -74,7 +82,26 @@ class ResQApiService {
   }
 
   // ── Token Refresh ──────────────────────────────────────────────────────────
-  // POST /token/generate-access-token
+    // POST /auth/resend-verification  (or whatever the backend endpoint is)
+  static Future<ApiResult> resendVerificationEmail({required String email}) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$_baseUrl/auth/resend-verification'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}),
+      );
+      final body = jsonDecode(res.body) as Map<String, dynamic>;
+      if (res.statusCode == 200) {
+        return ApiResult(success: true, message: body['message'] ?? 'Email sent');
+      }
+      return ApiResult(
+          success: false, message: body['message'] ?? 'Failed to resend email');
+    } catch (e) {
+      return ApiResult(success: false, message: 'Network error: $e');
+    }
+  }
+
+// POST /token/generate-access-token
   // Automatically called when server returns 403
 
   static Future<bool> _refreshTokens() async {

@@ -17,7 +17,8 @@ dependencies:
   flutter_contacts: ^1.1.9+2
   speech_to_text: ^7.0.0
   geolocator: ^13.0.0
-  permission_handler: ^11.0.1
+  app_links: ^6.0.0
+  permission_handler: ^11.1.1
   contacts_service: ^0.6.3
 
 dev_dependencies:
@@ -26,6 +27,7 @@ dev_dependencies:
   flutter_lints: ^3.0.0
   flutter_launcher_icons: "^0.14.4"
 
+<<<<<<< HEAD
 flutter_icons:
   android: "launcher_icon"
   ios: true
@@ -33,6 +35,8 @@ flutter_icons:
 
 
 
+=======
+>>>>>>> c9f8cb6e3481293813cd3edb886ae2ce169e185a
 flutter:
   uses-material-design: true
   assets:
