@@ -4,14 +4,6 @@ import 'package:flutter/material.dart';
 import '../services/location_speech_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DEPENDENCIES NEEDED IN pubspec.yaml:
-
-
-//   speech_to_text: ^6.6.0
-//   geolocator: ^13.0.0
-// ─────────────────────────────────────────────────────────────────────────────
-
 // ─── Waveform bar heights used throughout ─────────────────────────────────────
 const List<double> _kWaveHeights = [28, 42, 28, 48, 32, 18, 28, 42, 28, 48, 32, 18, 44, 28, 20, 42, 28, 48, 32, 18, 28];
 
@@ -454,7 +446,7 @@ class _VoiceChatScreenState extends State<VoiceChatScreen>
                 style: TextStyle(color: _mutedText, fontSize: 16,
                     fontFamily: 'Inter', fontWeight: FontWeight.w500)),
 
-            const SizedBox(height: 54),
+            const SizedBox(height: 36),
 
             // Live recording orb
             GestureDetector(
@@ -497,7 +489,7 @@ class _VoiceChatScreenState extends State<VoiceChatScreen>
               ),
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 24),
 
             // Live transcript
             Padding(
@@ -585,7 +577,7 @@ class _VoiceChatScreenState extends State<VoiceChatScreen>
               ],
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 24),
 
             if (_isRecording)
               Padding(
