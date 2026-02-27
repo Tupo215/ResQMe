@@ -106,6 +106,7 @@ class _VoiceAiScreenState extends State<VoiceAiScreen>
                   },
                   child: Column(
                     children: [
+                      // Circle with waveform inside — no mic icon
                       Container(
                         width: 120, height: 120,
                         decoration: const ShapeDecoration(
@@ -114,12 +115,11 @@ class _VoiceAiScreenState extends State<VoiceAiScreen>
                               borderRadius: BorderRadius.all(Radius.circular(100))),
                         ),
                         child: Center(
-                          child: Icon(Icons.mic_rounded, size: 48, color: _purple),
+                          child: _AnimatedWaveform(
+                              controller: _waveCtrl, color: _purple, compact: true),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      _AnimatedWaveform(controller: _waveCtrl, color: _lightPurple),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 20),
                       Text("Can't text? I can listen",
                           style: TextStyle(
                               color: _darkGrey, fontSize: 16,
@@ -638,6 +638,7 @@ class _VoiceAiChatScreenState extends State<VoiceAiChatScreen> {
   bool _aiTyping = false;
   bool _isRecording = false;
   String _liveInput = '';
+  bool _hasText = false;
 
   static const List<_AiQA> _aiFlow = [
     _AiQA('emergency', ['Starting emergency assessment', 'I\'m here with you', 'Are you safe from immediate danger (fire, traffic, smoke)?']),
@@ -879,21 +880,31 @@ class _VoiceAiChatScreenState extends State<VoiceAiChatScreen> {
                               border: InputBorder.none,
                               isDense: true,
                             ),
-                            onSubmitted: (_) => _sendText(),
+                            onChanged: (v) => setState(() => _hasText = v.trim().isNotEmpty),
+                            onSubmitted: (_) { _sendText(); setState(() => _hasText = false); },
                           ),
                         ),
                         GestureDetector(
-                          onTap: _isRecording ? _toggleVoiceInput : _toggleVoiceInput,
-                          child: Container(
+                          onTap: _hasText && !_isRecording
+                              ? () { _sendText(); setState(() => _hasText = false); }
+                              : _toggleVoiceInput,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: _isRecording ? _red : _bg,
+                              color: _hasText && !_isRecording
+                                  ? const Color(0xFF000080)
+                                  : _isRecording ? _red : _bg,
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              _isRecording ? Icons.stop : Icons.mic_rounded,
+                              _hasText && !_isRecording
+                                  ? Icons.send_rounded
+                                  : _isRecording ? Icons.stop : Icons.mic_rounded,
                               size: 24,
-                              color: _isRecording ? Colors.white : Colors.black54,
+                              color: _hasText && !_isRecording
+                                  ? Colors.white
+                                  : _isRecording ? Colors.white : Colors.black54,
                             ),
                           ),
                         ),
@@ -1888,22 +1899,34 @@ class _VoiceCalibrationScreenState extends State<VoiceCalibrationScreen>
 class _AnimatedWaveform extends StatelessWidget {
   final AnimationController controller;
   final Color color;
-  const _AnimatedWaveform({required this.controller, required this.color});
+  /// When true, renders a smaller compact waveform for fitting inside a circle
+  final bool compact;
+  const _AnimatedWaveform({
+    required this.controller, required this.color, this.compact = false});
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: controller,
     builder: (_, __) {
+      // compact: fewer, shorter bars that fit inside the 120px circle
+      final barCount  = compact ? 9  : _kWaveHeights.length;
+      final barWidth  = compact ? 4.0 : 5.0;
+      final barSpacing = compact ? 2.0 : 1.5;
+      final maxH      = compact ? 28.0 : 48.0;
+      final minH      = compact ? 6.0  : 8.0;
+
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: List.generate(_kWaveHeights.length, (i) {
-          final phase = (i / _kWaveHeights.length + controller.value) % 1.0;
-          final h = _kWaveHeights[i] * (0.5 + 0.5 * sin(phase * pi * 2));
+        mainAxisSize: compact ? MainAxisSize.min : MainAxisSize.max,
+        children: List.generate(barCount, (i) {
+          final phase = (i / barCount + controller.value) % 1.0;
+          final srcH  = compact ? 1.0 : _kWaveHeights[i];
+          final h = srcH * (0.5 + 0.5 * sin(phase * pi * 2));
           return Container(
-            width: 5,
-            height: h.clamp(8.0, 48.0),
-            margin: const EdgeInsets.symmetric(horizontal: 1.5),
+            width: barWidth,
+            height: h.clamp(minH, maxH),
+            margin: EdgeInsets.symmetric(horizontal: barSpacing),
             decoration: ShapeDecoration(
               color: color,
               shape: RoundedRectangleBorder(

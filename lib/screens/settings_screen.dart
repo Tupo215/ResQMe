@@ -6,6 +6,7 @@ import 'login_screen.dart';
 import 'medical_profile_screen.dart';
 import 'personal_profile_screen.dart';
 import 'emergency_contact_screen.dart';
+import 'privacy_data_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -49,7 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(width: 16),
                   Text('Settings',
                       style: TextStyle(
-                          color: Colors.black.withValues(alpha: 0.20),
+                          color: Colors.black,
                           fontSize: 24, fontFamily: 'Inter',
                           fontWeight: FontWeight.w600, height: 1.40)),
                 ],
@@ -176,7 +177,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _SettingsTile(
                           iconAsset: ResQIcons.shieldLock,
                           label: 'Privacy & Data',
-                          trailing: _chevron),
+                          trailing: _chevron,
+                          onTap: () => Navigator.push(context,
+                              MaterialPageRoute(
+                                  builder: (_) => const PrivacyDataScreen()))),
                       _SettingsTile(
                           iconAsset: ResQIcons.shield,
                           label: 'Privacy Policy',

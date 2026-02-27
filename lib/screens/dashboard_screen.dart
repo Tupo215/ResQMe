@@ -11,7 +11,7 @@ import 'voice_ai_screen.dart';
 import 'settings_screen.dart';
 import 'emergency_contact_screen.dart';
 import 'medical_profile_screen.dart';
-import 'sos_flow_screens.dart';
+import 'sos_history_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -120,6 +120,9 @@ class _DashboardScreenState extends State<DashboardScreen>
           if (i == 2) {
             Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const SettingsScreen()));
+          } else if (i == 1) {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const SosHistoryScreen()));
           } else {
             setState(() => _selectedTab = i);
           }

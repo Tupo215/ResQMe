@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/resq_widgets.dart';
 import '../widgets/resq_icon.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
+import '../services/api_service.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Data models
@@ -29,21 +29,59 @@ class EmergencyContactScreen extends StatefulWidget {
 }
 
 class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
-  final List<_Contact> _contacts = [
-    _Contact(name: 'John Smith',  relationship: 'Spouse', phone: '+234 801 234 0000',
-        tags: [_Tag('Primary', const Color(0xFF333399), Colors.white),
-               _Tag('Family',  const Color(0xFFCCCCE6), AppColors.navy)],
-        isPrimary: true, isFamily: true),
-    _Contact(name: 'Jane Doe',   relationship: 'Child',  phone: '+234 801 234 0000',
-        tags: [_Tag('Primary', const Color(0xFF333399), Colors.white),
-               _Tag('Family',  const Color(0xFFCCCCE6), AppColors.navy)],
-        isPrimary: true, isFamily: true),
-    _Contact(name: 'Mary Johnson',relationship: 'Parent', phone: '+234 802 345 6789',
-        tags: [_Tag('Family', const Color(0xFFCCCCE6), AppColors.navy)],
-        isFamily: true),
-    _Contact(name: 'David Williams', relationship: 'Friend', phone: '+234 803 456 7890',
-        tags: [_Tag('Friend', const Color(0xFFA7A7A7), const Color(0xFF232323))]),
-  ];
+  final List<_Contact> _contacts = [];
+  bool _loading = true;
+  bool _saving  = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadContactsFromApi();
+  }
+
+  // Load contacts from backend on screen open
+  Future<void> _loadContactsFromApi() async {
+    final result = await ResQApiService.getEmergencyContacts();
+    if (!mounted) return;
+    if (result.success && result.list != null) {
+      final profiles = EmergencyContactProfile.fromJsonList(result.list!);
+      setState(() {
+        _contacts.clear();
+        for (final p in profiles) {
+          final rel = p.relationship.isNotEmpty ? p.relationship.first : 'Contact';
+          _contacts.add(_Contact(
+            name: p.name,
+            relationship: rel,
+            phone: p.email, // use email as display since phone not returned
+            tags: [_Tag(rel, const Color(0xFFCCCCE6), AppColors.navy)],
+          ));
+        }
+        _loading = false;
+      });
+    } else {
+      setState(() => _loading = false);
+    }
+  }
+
+  // Save all contacts to backend
+  Future<void> _saveContactsToApi() async {
+    if (_contacts.isEmpty) return;
+    if (_contacts.length > 5) {
+      showResQSnackBar(context, 'Maximum 5 emergency contacts allowed', isError: true);
+      return;
+    }
+    setState(() => _saving = true);
+    final inputs = _contacts.map((c) => EmergencyContactInput(
+      name:         c.name,
+      email:        c.phone, // phone field used as contact identifier
+      relationship: c.relationship,
+    )).toList();
+
+    final result = await ResQApiService.createEmergencyContacts(inputs);
+    if (!mounted) return;
+    setState(() => _saving = false);
+    showResQSnackBar(context, result.message, isError: !result.success);
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -80,7 +118,22 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 style: TextStyle(color: Color(0xFF7B7B7B), fontSize: 14,
                     fontFamily: 'Inter', fontWeight: FontWeight.w400, height: 1.40)),
           ),
-          ..._contacts.map((c) => _contactCard(c)),
+          if (_loading)
+            const Center(child: Padding(
+              padding: EdgeInsets.all(32),
+              child: CircularProgressIndicator(color: AppColors.navy),
+            ))
+          else if (_contacts.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(32),
+              child: Center(child: Text(
+                  'No emergency contacts yet.\nTap Add Contact to get started.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Color(0xFF7B7B7B), fontSize: 16,
+                      fontFamily: 'Inter'))),
+            )
+          else
+            ..._contacts.map((c) => _contactCard(c)),
           const SizedBox(height: 120),
         ]),
       )),
@@ -93,11 +146,14 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
               blurRadius: 50, offset: const Offset(0, 25), spreadRadius: -12)],
         ),
         child: Column(children: [
-          SizedBox(width: double.infinity, height: 50,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF9999CC),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40))),
-              onPressed: () => _goToAddContact(),
+          GestureDetector(
+            onTap: () => _goToAddContact(),
+            child: Container(
+              width: double.infinity, height: 50,
+              decoration: ShapeDecoration(
+                color: AppColors.navy,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+              ),
               child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 const Icon(Icons.add, color: Color(0xFFEFEFF1), size: 20),
                 const SizedBox(width: 8),
@@ -128,9 +184,18 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
   );
 
   void _goToAddContact() async {
+    if (_contacts.length >= 5) {
+      showResQSnackBar(context,
+          'Maximum 5 emergency contacts allowed', isError: true);
+      return;
+    }
     final result = await Navigator.push<_Contact>(context,
         MaterialPageRoute(builder: (_) => const AddContactScreen()));
-    if (result != null) setState(() => _contacts.add(result));
+    if (result != null) {
+      setState(() => _contacts.add(result));
+      // Auto-save to backend whenever a new contact is added
+      _saveContactsToApi();
+    }
   }
 
   Widget _contactCard(_Contact c) => Container(
@@ -207,6 +272,14 @@ class _AddContactScreenState extends State<AddContactScreen> {
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _relCtrl   = TextEditingController();
+  bool _formComplete = false;
+
+  void _checkForm() {
+    final complete = _nameCtrl.text.trim().isNotEmpty &&
+                     _phoneCtrl.text.trim().isNotEmpty &&
+                     _relCtrl.text.trim().isNotEmpty;
+    if (complete != _formComplete) setState(() => _formComplete = complete);
+  }
   final _notesCtrl = TextEditingController();
   bool _tagFamily = false;
   bool _setPrimary = false;
@@ -214,6 +287,9 @@ class _AddContactScreenState extends State<AddContactScreen> {
   @override
   void initState() {
     super.initState();
+    _nameCtrl.addListener(_checkForm);
+    _phoneCtrl.addListener(_checkForm);
+    _relCtrl.addListener(_checkForm);
     if (widget.prefilled != null) {
       _nameCtrl.text  = widget.prefilled!.name;
       _phoneCtrl.text = widget.prefilled!.phone;
@@ -354,12 +430,16 @@ class _AddContactScreenState extends State<AddContactScreen> {
           const SizedBox(width: 16),
           Expanded(child: SizedBox(height: 50,
             child: ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF9999CC),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40))),
-              onPressed: _saveContact,
-              child: const Text('Save Contact',
-                  style: TextStyle(color: Color(0xFFEFEFF1), fontSize: 16,
-                      fontFamily: 'Inter', fontWeight: FontWeight.w500)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _formComplete ? AppColors.navy : const Color(0xFFC4C4C4),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(40))),
+              onPressed: _formComplete ? _saveContact : null,
+              child: Text('Save Contact',
+                  style: TextStyle(
+                      color: _formComplete ? const Color(0xFFEFEFF1) : const Color(0xFF7B7B7B),
+                      fontSize: 16, fontFamily: 'Inter',
+                      fontWeight: FontWeight.w500)),
             ))),
         ]),
       ),
@@ -549,25 +629,16 @@ class _PhonebookListScreenState extends State<PhonebookListScreen> {
   String _query = '';
 
   // Simulated phone contacts — with flutter_contacts package these come from the phone
-  List<_Contact> _phoneContacts = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadContacts();
-  }
-
-  Future<void> _loadContacts() async {
-    final raw = await FlutterContacts.getContacts(withProperties: true);
-    setState(() {
-      _phoneContacts = raw.map((c) => _Contact(
-        name: c.displayName,
-        phone: c.phones.isNotEmpty ? c.phones.first.number : '',
-        relationship: '',
-        tags: [],
-      )).toList();
-    });
-  }
+  final List<_Contact> _phoneContacts = [
+    _Contact(name: 'Alice Cooper',   relationship: '', phone: '+234 801 111 2222', tags: []),
+    _Contact(name: 'Bob Martin',     relationship: '', phone: '+234 802 222 3333', tags: []),
+    _Contact(name: 'Carol White',    relationship: '', phone: '+234 803 333 4444', tags: []),
+    _Contact(name: 'Daniel Brown',   relationship: '', phone: '+234 804 444 5555', tags: []),
+    _Contact(name: 'Emma Davis',     relationship: '', phone: '+234 805 555 6666', tags: []),
+    _Contact(name: 'Frank Wilson',   relationship: '', phone: '+234 806 666 7777', tags: []),
+    _Contact(name: 'Grace Lee',      relationship: '', phone: '+234 807 777 8888', tags: []),
+    _Contact(name: 'Henry Clark',    relationship: '', phone: '+234 808 888 9999', tags: []),
+  ];
 
   final Set<int> _selected = {};
 

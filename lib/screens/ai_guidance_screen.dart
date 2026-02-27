@@ -54,7 +54,7 @@ class _AiGuidanceScreenState extends State<AiGuidanceScreen> {
                   ),
                   const SizedBox(width: 16),
                   const Expanded(
-                    child: Text('AI Emergency Assistance',
+                    child: Text('NORA',
                         style: TextStyle(
                             color: Color(0xFF00000033),
                             fontSize: 24, fontFamily: 'Inter',
@@ -315,7 +315,7 @@ class _AiGuidanceScreenState extends State<AiGuidanceScreen> {
 
                   const SizedBox(height: 24),
 
-                  // ── Chat with AI button ───────────────────────────
+                  // ── Chat with NORA button ───────────────────────────
                   Container(
                     width: double.infinity, height: 50,
                     decoration: ShapeDecoration(
@@ -329,7 +329,7 @@ class _AiGuidanceScreenState extends State<AiGuidanceScreen> {
                         ResQIcon(ResQIcons.chat, size: 20,
                             color: const Color(0xFFEFEFF1)),
                         const SizedBox(width: 8),
-                        const Text('Chat with AI',
+                        const Text('Chat with NORA',
                             style: TextStyle(color: Color(0xFFEFEFF1),
                                 fontSize: 16, fontFamily: 'Inter',
                                 fontWeight: FontWeight.w500, height: 1.40)),
