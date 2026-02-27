@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import '../widgets/resq_widgets.dart';
 import '../widgets/resq_icon.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:contacts_service/contacts_service.dart';
+
+
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Data models
@@ -715,5 +720,32 @@ class _PhonebookListScreenState extends State<PhonebookListScreen> {
     final first = _phoneContacts[_selected.first];
     Navigator.pushReplacement(context, MaterialPageRoute(
         builder: (_) => AddContactScreen(prefilled: first)));
+  }
+}
+    Future<bool> requestContactsPermission() async {
+  final status = await Permission.contacts.status;
+
+  if (status.isGranted) {
+    return true;
+  }
+
+  if (status.isDenied) {
+    final result = await Permission.contacts.request();
+    return result.isGranted;
+  }
+
+  if (status.isPermanentlyDenied) {
+    await openAppSettings();
+    return false;
+  }
+
+  return false;
+}
+
+
+Future<void> getContacts() async {
+  if (await requestContactsPermission()) {
+    final contacts = await ContactsService.getContacts();
+    print(contacts.length);
   }
 }
