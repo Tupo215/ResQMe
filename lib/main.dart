@@ -90,7 +90,7 @@ class _ResQMissionAppState extends State<ResQMissionApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ResQMission',
+      title: 'ResQMe',
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       theme: ThemeData(

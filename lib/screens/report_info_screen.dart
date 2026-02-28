@@ -34,13 +34,13 @@ class _ReportInfoScreenState extends State<ReportInfoScreen> {
     final position = await LocationService.getCurrentPosition();
 
     final result = await ResQApiService.reportEmergency(
-      // Confirmed required fields (image 2)
-      latitude:      position?.latitude  ?? 0.0,
-      longitude:     position?.longitude ?? 0.0,
-      // Additional context
-      emergencyType: widget.emergencyType,
-      reportingFor:  widget.reportingFor,
-      description:   widget.notes.isNotEmpty ? widget.notes : null,
+      latitude:       position?.latitude  ?? 0.0,
+      longitude:      position?.longitude ?? 0.0,
+      emergencyType:  widget.emergencyType,
+      reportingFor:   widget.reportingFor,
+      description:    widget.notes.isNotEmpty ? widget.notes : null,
+      victimsCount:   widget.victimCount.toString(),
+      victimCondition: widget.victimStatus,
     );
 
     if (!mounted) return;

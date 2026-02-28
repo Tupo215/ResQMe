@@ -452,14 +452,14 @@ class ResQApiService {
   // Response: { "message": "Successful request" }
   // =============================================================================
   static Future<ApiResult> reportEmergency({
-    // Confirmed fields from backend (image 2):
-    required double latitude,    // e.g. 9.0405080
-    required double longitude,   // e.g. 38.7627340
-    File? voiceNote,              // key: "voiceNote", file e.g. ResQ.m4a
-    // Additional fields — send if available
+    required double latitude,
+    required double longitude,
     String? emergencyType,
     String? reportingFor,
     String? description,
+    String? victimsCount,
+    String? victimCondition,
+    File?   voiceNote,
     File?   photo,
   }) async {
     try {
@@ -467,27 +467,24 @@ class ResQApiService {
         final req = http.MultipartRequest(
             'POST', Uri.parse('$_baseUrl/reports/emergency'));
 
-        // Confirmed required fields (image 2)
         req.fields['latitude']  = latitude.toString();
         req.fields['longitude'] = longitude.toString();
 
-        // Optional extra context
-        if (emergencyType?.isNotEmpty == true)
-          req.fields['emergencyType'] = emergencyType!;
-        if (reportingFor?.isNotEmpty == true)
-          req.fields['reportingFor'] = reportingFor!;
-        if (description?.isNotEmpty == true)
-          req.fields['description'] = description!;
+        if (emergencyType?.isNotEmpty  == true) req.fields['emergencyType']  = emergencyType!;
+        if (reportingFor?.isNotEmpty   == true) req.fields['reportingFor']   = reportingFor!;
+        if (description?.isNotEmpty    == true) req.fields['description']    = description!;
+        if (victimsCount?.isNotEmpty   == true) req.fields['victimsCount']   = victimsCount!;
+        if (victimCondition?.isNotEmpty == true) req.fields['victimCondition'] = victimCondition!;
 
-        // Voice note file — key is "voiceNote" (image 2)
-        if (voiceNote != null) {
+        // Only attach files if they actually exist — backend errors when buffer is undefined
+        if (voiceNote != null && voiceNote.existsSync()) {
           req.files.add(http.MultipartFile.fromBytes(
             'voiceNote',
             voiceNote.readAsBytesSync(),
             filename: voiceNote.path.split(Platform.pathSeparator).last,
           ));
         }
-        if (photo != null) {
+        if (photo != null && photo.existsSync()) {
           req.files.add(http.MultipartFile.fromBytes(
             'photo',
             photo.readAsBytesSync(),
