@@ -17,6 +17,7 @@ const _kRefreshToken     = 'refresh_token';
 const _kUserId           = 'user_id';
 const _kUserName         = 'user_name';
 const _kUserProfile      = 'user_profile';
+const _kUserEmail        = 'user_email';
 
 // ─── API Response wrapper ─────────────────────────────────────────────────────
 class ApiResult {
@@ -56,6 +57,9 @@ class ResQApiService {
 
   static Future<String?> getUserName() async =>
       (await SharedPreferences.getInstance()).getString(_kUserName);
+
+  static Future<String?> getUserEmail() async =>
+      (await SharedPreferences.getInstance()).getString(_kUserEmail);
 
   static Future<String?> getSavedUserId() async =>
       (await SharedPreferences.getInstance()).getString(_kUserId);
@@ -186,6 +190,7 @@ class ResQApiService {
         final p = await SharedPreferences.getInstance();
         await p.setString(_kUserId, body['userId'] ?? '');
         await p.setString(_kUserName, fullname);
+        await p.setString(_kUserEmail, email);
         return ApiResult(success: true,
             message: body['message'] ?? 'Registered. Please verify your email.',
             data: body);
@@ -250,6 +255,7 @@ class ResQApiService {
         if (profile != null) {
           await p.setString(_kUserName, profile['fullname'] ?? '');
           await p.setString(_kUserProfile, jsonEncode(profile));
+          await p.setString(_kUserEmail, body['email'] ?? email);
         }
 
         return ApiResult(success: true, message: 'Login successful.', data: body);
@@ -406,6 +412,36 @@ class ResQApiService {
     }
   }
 
+
+  // =============================================================================
+  // GET MY PROFILE   GET /profile/get-my-profile
+  // Returns full user profile: fullname, email, phone, gender, age, etc.
+  // =============================================================================
+  static Future<ApiResult> getMyProfile() async {
+    try {
+      final response = await _authGet('/profile/get-my-profile');
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        // Cache the latest profile locally
+        final p = await SharedPreferences.getInstance();
+        await p.setString(_kUserProfile, jsonEncode(body));
+        if (body['fullname'] != null) {
+          await p.setString(_kUserName, body['fullname']);
+        }
+        if (body['email'] != null) {
+          await p.setString(_kUserEmail, body['email']);
+        }
+        return ApiResult(success: true, message: 'Profile loaded.', data: body);
+      }
+      final parsed = _tryDecode(response.body);
+      return ApiResult(success: false,
+          message: parsed?['message'] ?? 'Failed to load profile');
+    } catch (e) {
+      return ApiResult(success: false,
+          message: 'Network error. Please check your connection.');
+    }
+  }
+
   // =============================================================================
   // 7. REPORT EMERGENCY
   // POST /reports/emergency   multipart/form-data
@@ -485,6 +521,7 @@ class ResQApiService {
     await p.remove(_kUserId);
     await p.remove(_kUserName);
     await p.remove(_kUserProfile);
+    await p.remove(_kUserEmail);
   }
 
   // ── Utility ───────────────────────────────────────────────────────────────
