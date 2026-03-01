@@ -74,15 +74,19 @@ class ResQApiService {
 
   static Future<Map<String, String>> _authHeaders() async {
     final token = await getAccessToken();
-    return {
-      'Content-Type': 'application/json',
-      'authorization': 'Bearer $token',
-    };
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    if (token != null && token.isNotEmpty) {
+      headers['authorization'] = 'Bearer $token';
+    }
+    return headers;
   }
 
   static Future<Map<String, String>> _authHeadersRaw() async {
     final token = await getAccessToken();
-    return {'authorization': 'Bearer $token'};
+    if (token != null && token.isNotEmpty) {
+      return {'authorization': 'Bearer $token'};
+    }
+    return {};
   }
 
   // ── Token Refresh ──────────────────────────────────────────────────────────
@@ -156,9 +160,13 @@ class ResQApiService {
       String path,
       http.MultipartRequest Function() build) async {
     http.MultipartRequest req = build();
-    req.headers.addAll(await _authHeadersRaw());
+    final authHeaders = await _authHeadersRaw();
+    if (authHeaders.isNotEmpty) req.headers.addAll(authHeaders);
     var res = await req.send().timeout(const Duration(seconds: 60));
-    if (res.statusCode == 403 && await _refreshTokens()) {
+    // Only attempt token refresh if we actually have a token
+    final token = await getAccessToken();
+    if (res.statusCode == 403 && token != null && token.isNotEmpty
+        && await _refreshTokens()) {
       req = build();
       req.headers.addAll(await _authHeadersRaw());
       res = await req.send().timeout(const Duration(seconds: 60));
