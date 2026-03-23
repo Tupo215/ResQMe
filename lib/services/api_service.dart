@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 //   app_links: ^6.0.0
 // ─────────────────────────────────────────────────────────────────────────────
 
-const String _baseUrl    = 'https://resq-app-741m.onrender.com';
+const String _baseUrl    = 'https://resq-me-testing.onrender.com/';
 const _kAccessToken      = 'access_token';
 const _kRefreshToken     = 'refresh_token';
 const _kUserId           = 'user_id';
